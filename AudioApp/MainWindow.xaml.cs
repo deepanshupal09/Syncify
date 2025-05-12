@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using AudioApp.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using NAudio.CoreAudioApi;
 
 namespace AudioApp
@@ -14,6 +14,7 @@ namespace AudioApp
         public DeviceService DeviceService { get; }
         public AudioService AudioService { get; }
         private readonly AudioNotificationClient _notifier;
+        private readonly MMDeviceEnumerator _enumerator = new();
 
         public MainWindow()
         {
@@ -23,49 +24,73 @@ namespace AudioApp
             AudioService = new AudioService();
             _notifier = new AudioNotificationClient(DeviceService, AudioService, this.DispatcherQueue);
 
-            var enumerator = new MMDeviceEnumerator();
-            enumerator.RegisterEndpointNotificationCallback(_notifier);
+            _enumerator.RegisterEndpointNotificationCallback(_notifier);
 
+            // DataContext before anything else
             RootGrid.DataContext = this;
         }
 
-        private async void StartButton_Click(object sender, RoutedEventArgs e)
+        private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
         {
+            // Prevent double-init if Loaded fires more than once:
+            RootGrid.Loaded -= RootGrid_Loaded;
+
+            // 1. Start capturing loopback
             AudioService.StartCapture();
+            await Task.Delay(100); // let capture initialize
 
-            // Wait for capture to initialize
-            await Task.Delay(100);
-
-            // Add outputs on UI thread
-            foreach (var view in DeviceService.RenderDevices)
+            // 2. Initialize all pre-selected devices
+            foreach (var dev in DeviceService.RenderDevices.Where(d => d.IsSelected && d.CanSelect))
             {
-                if (view.IsSelected && view.CanSelect)
+                for (int attempt = 0; attempt < 3; attempt++)
                 {
-                    Debug.WriteLine($"Initializing output: {view.FriendlyName}");
-                    if (AudioService.DeviceExists(view.ID))
+                    try
                     {
-                        // Retry logic for device initialization
-                        for (int i = 0; i < 3; i++)
-                        {
-                            try
-                            {
-                                AudioService.AddOutputDevice(view.ID);
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                Debug.WriteLine($"Init attempt {i + 1} failed: {ex.Message}");
-                                await Task.Delay(50);
-                            }
-                        }
+                        AudioService.AddOutputDevice(dev.ID);
+                        break;
+                    }
+                    catch
+                    {
+                        await Task.Delay(50);
                     }
                 }
             }
         }
 
-        private void StopButton_Click(object sender, RoutedEventArgs e)
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // 1) Start capturing loopback
+            AudioService.StartCapture();
+            await Task.Delay(100); // let capture initialize
+
+            // 2) Initialize all pre-selected devices
+            foreach (var dev in DeviceService.RenderDevices.Where(d => d.IsSelected && d.CanSelect))
+            {
+                for (int attempt = 0; attempt < 3; attempt++)
+                {
+                    try
+                    {
+                        AudioService.AddOutputDevice(dev.ID);
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Init attempt {attempt + 1} for {dev.FriendlyName} failed: {ex.Message}");
+                        await Task.Delay(50);
+                    }
+                }
+            }
+        }
+
+        private void Window_Closed(object sender, WindowEventArgs args)
+        {
+            // Clean up audio
             AudioService.StopCapture();
+
+            // Unregister notifications & dispose enumerator
+            _enumerator.UnregisterEndpointNotificationCallback(_notifier);
+            _enumerator.Dispose();
         }
 
         private void Device_Checked(object sender, RoutedEventArgs e)

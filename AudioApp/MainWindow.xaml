@@ -5,7 +5,7 @@
     xmlns:local="using:AudioApp"
     Title="AudioApp">
 
-    <Grid x:Name="RootGrid" Padding="20">
+    <Grid x:Name="RootGrid" Padding="20" Loaded="RootGrid_Loaded">
         <StackPanel VerticalAlignment="Top" Spacing="10">
             <TextBlock Text="Select Outputs:" FontSize="16"/>
 
@@ -33,14 +33,15 @@
                 </ListView.ItemTemplate>
             </ListView>
 
+            <!--
             <StackPanel Orientation="Horizontal"
-                      HorizontalAlignment="Center"
-                      Spacing="20">
-                <Button Content="Start" Width="80" Click="StartButton_Click"
-                       />
-                <Button Content="Stop" Width="80" Click="StopButton_Click"
-                       />
+                        HorizontalAlignment="Center"
+                        Spacing="20">
+                <Button Content="Start" Width="80" Click="StartButton_Click"/>
+                <Button Content="Stop"  Width="80" Click="StopButton_Click"/>
             </StackPanel>
+            -->
+
         </StackPanel>
     </Grid>
 </Window>
