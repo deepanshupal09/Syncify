@@ -346,17 +346,17 @@ namespace AudioApp.Services
                 .Any(d => d.ID == deviceId);
         }
 
-        public void SetDeviceVolume(string deviceId, float level)
-        {
-            lock (_syncLock)
-            {
-                if (_outputs.TryGetValue(deviceId, out var tuple))
-                {
-                    // Clamp volume between 0.0-1.0 and set it
-                    tuple.Player.Volume = Math.Clamp(level, 0f, 1f);
-                }
-            }
-        }
+        //public void SetDeviceVolume(string deviceId, float level)
+        //{
+        //    lock (_syncLock)
+        //    {
+        //        if (_outputs.TryGetValue(deviceId, out var tuple))
+        //        {
+        //            // Clamp volume between 0.0-1.0 and set it
+        //            tuple.Player.Volume = Math.Clamp(level, 0f, 1f);
+        //        }
+        //    }
+        //}
 
         public void Dispose()
         {

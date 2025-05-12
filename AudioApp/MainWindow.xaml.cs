@@ -80,10 +80,10 @@ namespace AudioApp
                 AudioService.RemoveOutputDevice(id);
         }
 
-        private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            if (sender is Slider { Tag: string id })
-                AudioService.SetDeviceVolume(id, (float)(e.NewValue / 100.0));
-        }
+        //private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        //{
+        //    if (sender is Slider { Tag: string id })
+        //        AudioService.SetDeviceVolume(id, (float)(e.NewValue / 100.0));
+        //}
     }
 }

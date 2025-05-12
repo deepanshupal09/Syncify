@@ -61,11 +61,13 @@ namespace AudioApp.Services
         }
 
 
-        public class DeviceView : INotifyPropertyChanged
+        public class DeviceView : INotifyPropertyChanged, IDisposable
         {
             public MMDevice Underlying { get; }
             public string ID => Underlying.ID;
             public string FriendlyName => Underlying.FriendlyName;
+            private readonly DispatcherQueue _dispatcherQueue;
+
 
             private bool _canSelect = true;
             public bool CanSelect
@@ -88,7 +90,39 @@ namespace AudioApp.Services
                 get => _isDefaultDevice;
                 set => SetField(ref _isDefaultDevice, value);
             }
-            public DeviceView(MMDevice device) => Underlying = device;
+            public DeviceView(MMDevice device, DispatcherQueue dispatcherQueue)
+            {
+                Underlying = device;
+                _dispatcherQueue = dispatcherQueue;
+                Underlying.AudioEndpointVolume.OnVolumeNotification += OnVolumeNotification;
+            }
+
+            private void OnVolumeNotification(AudioVolumeNotificationData data)
+            {
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    OnPropertyChanged(nameof(Volume));
+                });
+            }
+
+            public float Volume
+            {
+                get => Underlying.AudioEndpointVolume.MasterVolumeLevelScalar * 100;
+                set
+                {
+                    float newVolume = Math.Clamp(value / 100f, 0f, 1f);
+                    if (Math.Abs(Underlying.AudioEndpointVolume.MasterVolumeLevelScalar - newVolume) > 0.001f)
+                    {
+                        Underlying.AudioEndpointVolume.MasterVolumeLevelScalar = newVolume;
+                    }
+                }
+            }
+
+            public void Dispose()
+            {
+                Underlying.AudioEndpointVolume.OnVolumeNotification -= OnVolumeNotification;
+                Underlying.Dispose();
+            }
 
             public event PropertyChangedEventHandler? PropertyChanged;
             private void OnPropertyChanged([CallerMemberName] string? nm = null) =>
@@ -117,7 +151,7 @@ namespace AudioApp.Services
             {
                 foreach (var view in RenderDevices)
                 {
-                    view.Underlying.Dispose();
+                    view.Dispose(); // Properly dispose old views
                 }
                 RenderDevices.Clear();
 
@@ -128,13 +162,12 @@ namespace AudioApp.Services
                 foreach (var dev in enumerator.EnumerateAudioEndPoints(DataFlow.Render, DeviceState.Active))
                 {
                     var isDefault = dev.ID == defaultId;
-                    var view = new DeviceView(dev)
+                    var view = new DeviceView(dev, _uiQueue) // Pass dispatcher
                     {
                         CanSelect = !isDefault,
                         IsSelected = _selectedIds.Contains(dev.ID) || isDefault
                     };
                     RenderDevices.Add(view);
-                    dev.Dispose();
                 }
                 defaultDevice.Dispose();
             });
