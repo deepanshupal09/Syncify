@@ -1,5 +1,13 @@
 # Changelog
 
+**Version v0.0.1.1** (unreleased)
+
+## Added
+- Synchronized system volume changes back to each device's volume slider
+
+## Known Issues
+- No in-app option to change the system default output device (users must change it via Windows settings).
+
 **Version v0.0.1.0** (unreleased)
 
 ## Added
