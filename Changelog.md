@@ -1,5 +1,14 @@
 # Changelog
 
+**Version v0.0.1.1** (unreleased)
+
+## Added
+- Synchronized system volume changes back to each device's volume slider by integrating AudioEndpointVolume notifications.
+
+## Known Issues
+- System volume changes are not yet reflected in the individual device sliders (will sync in upcoming release).
+- No in-app option to change the system default output device (users must change it via Windows settings).
+
 **Version v0.0.1.0** (unreleased)
 
 ## Added
