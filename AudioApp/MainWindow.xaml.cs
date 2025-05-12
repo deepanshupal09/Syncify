@@ -1,36 +1,89 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using AudioApp.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using NAudio.CoreAudioApi;
 
 namespace AudioApp
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
+        public DeviceService DeviceService { get; }
+        public AudioService AudioService { get; }
+        private readonly AudioNotificationClient _notifier;
+
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
+
+            DeviceService = new DeviceService(this.DispatcherQueue);
+            AudioService = new AudioService();
+            _notifier = new AudioNotificationClient(DeviceService, AudioService, this.DispatcherQueue);
+
+            var enumerator = new MMDeviceEnumerator();
+            enumerator.RegisterEndpointNotificationCallback(_notifier);
+
+            RootGrid.DataContext = this;
         }
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
+        private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            myButton.Content = "Clicked";
+            AudioService.StartCapture();
+
+            // Wait for capture to initialize
+            await Task.Delay(100);
+
+            // Add outputs on UI thread
+            foreach (var view in DeviceService.RenderDevices)
+            {
+                if (view.IsSelected && view.CanSelect)
+                {
+                    Debug.WriteLine($"Initializing output: {view.FriendlyName}");
+                    if (AudioService.DeviceExists(view.ID))
+                    {
+                        // Retry logic for device initialization
+                        for (int i = 0; i < 3; i++)
+                        {
+                            try
+                            {
+                                AudioService.AddOutputDevice(view.ID);
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"Init attempt {i + 1} failed: {ex.Message}");
+                                await Task.Delay(50);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void StopButton_Click(object sender, RoutedEventArgs e)
+        {
+            AudioService.StopCapture();
+        }
+
+        private void Device_Checked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox { Tag: string id } && AudioService.DeviceExists(id))
+                AudioService.AddOutputDevice(id);
+        }
+
+        private void Device_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox { Tag: string id })
+                AudioService.RemoveOutputDevice(id);
+        }
+
+        private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (sender is Slider { Tag: string id })
+                AudioService.SetDeviceVolume(id, (float)(e.NewValue / 100.0));
         }
     }
 }
