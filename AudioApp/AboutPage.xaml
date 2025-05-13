@@ -1,5 +1,5 @@
 <Page
-    x:Class="AudioApp.AboutPage"
+    x:Class="Syncify.AboutPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls">
@@ -11,7 +11,7 @@
 
             <!-- Header -->
             <TextBlock
-                Text="About AudioApp"
+                Text="About Syncify"
                 FontSize="28"
                 FontWeight="SemiBold" />
 
@@ -24,7 +24,7 @@
                     Text="Version: "
                     FontSize="16" />
                 <TextBlock
-                    Text="0.0.1.2"
+                    Text="0.0.1.3"
                     Margin="6,0"
                     FontSize="16" />
             </StackPanel>
@@ -52,7 +52,7 @@
             <TextBlock
                 FontSize="14"
                 TextWrapping="Wrap">
-                AudioApp is a lightweight audio routing utility that allows you to stream sound to multiple output devices simultaneously with per-device volume controls. Built with simplicity and performance in mind, it's ideal for both everyday users and audio enthusiasts.
+                Syncify is a lightweight audio routing utility that allows you to stream sound to multiple output devices simultaneously with per-device volume controls. Built with simplicity and performance in mind, it's ideal for both everyday users and audio enthusiasts.
             </TextBlock>
 
             <!-- Key Features -->
@@ -119,7 +119,7 @@
                 Text="Powered By"
                 FontWeight="Bold"
                 FontSize="18"
-                Margin="0,0,0,0" />
+                Margin="0,0,0,16" />
             <StackPanel>
                 <StackPanel
                     Orientation="Horizontal">
@@ -389,7 +389,7 @@
             <TextBlock
                 FontSize="14"
                 TextWrapping="Wrap">
-                AudioApp is open-source and distributed under the MIT License. You may use, modify, and redistribute it in compliance with the license.
+                Syncify is open-source and distributed under the MIT License. You may use, modify, and redistribute it in compliance with the license.
             </TextBlock>
 
             <!-- Contact -->

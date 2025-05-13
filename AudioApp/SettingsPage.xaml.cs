@@ -5,7 +5,7 @@ using Windows.Storage;  // <-- for LocalSettings
 using System;
 using System.Diagnostics;
 
-namespace AudioApp
+namespace Syncify
 {
     public sealed partial class SettingsPage : Page
     {

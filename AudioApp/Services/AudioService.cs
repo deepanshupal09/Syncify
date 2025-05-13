@@ -7,7 +7,7 @@ using System.Threading;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
 
-namespace AudioApp.Services
+namespace Syncify.Services
 {
     public class CircularBufferWaveProvider : IWaveProvider
     {

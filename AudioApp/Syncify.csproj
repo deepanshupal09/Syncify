@@ -43,6 +43,7 @@
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Converters\" />
     <Folder Include="Helpers\" />
     <Folder Include="Models\" />
     <Folder Include="ViewModels\" />

@@ -10,7 +10,7 @@ using Windows.Graphics;using Windows.Storage;  // <-- for LocalSettings
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using AudioApp.Services;
+using Syncify.Services;
 using NAudio.CoreAudioApi;
 using System.Runtime.InteropServices;
 using System.Drawing;
@@ -21,7 +21,7 @@ using System.Threading;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Application = Microsoft.UI.Xaml.Application;
 
-namespace AudioApp
+namespace Syncify
 {
     public sealed partial class MainWindow : Window
     {
@@ -53,7 +53,7 @@ namespace AudioApp
         
         public static bool IsFirstInstance()
         {
-            const string appName = "AudioApp_SingleInstance";
+            const string appName = "Syncify_SingleInstance";
             bool createdNew;
             
             _singleInstanceMutex = new Mutex(true, appName, out createdNew);
@@ -69,7 +69,7 @@ namespace AudioApp
                 new ContentDialog
                 {
                     Title = "Already Running",
-                    Content = "AudioApp is already running. Please check your system tray.",
+                    Content = "Syncify is already running. Please check your system tray.",
                     PrimaryButtonText = "OK"
                 }.ShowAsync();
                 
@@ -176,7 +176,7 @@ namespace AudioApp
             bool notifiedBefore = ApplicationData.Current.LocalSettings.Values.ContainsKey("TrayNotificationShown");
             if (!notifiedBefore)
             {
-                _notifyIcon.ShowBalloonTip(3000, "AudioApp", "AudioApp is still running in the system tray", ToolTipIcon.Info);
+                _notifyIcon.ShowBalloonTip(3000, "Syncify", "Syncify is still running in the system tray", ToolTipIcon.Info);
                 ApplicationData.Current.LocalSettings.Values["TrayNotificationShown"] = true;
             }
         }
@@ -189,7 +189,7 @@ namespace AudioApp
                 _notifyIcon = new NotifyIcon
                 {
                     Visible = true,
-                    Text = "AudioApp"
+                    Text = "Syncify"
                 };
                 
                 // Set the icon - we'll use a standard system icon for simplicity
@@ -200,7 +200,7 @@ namespace AudioApp
                 var contextMenu = new ContextMenuStrip();
                 
                 // Add menu items
-                var showItem = new ToolStripMenuItem("Show AudioApp");
+                var showItem = new ToolStripMenuItem("Show Syncify");
                 showItem.Click += (sender, args) => ShowWindow();
                 contextMenu.Items.Add(showItem);
                 

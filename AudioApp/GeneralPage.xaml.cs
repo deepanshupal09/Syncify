@@ -2,13 +2,13 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using AudioApp.Services;
+using Syncify.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using NAudio.CoreAudioApi;
 
-namespace AudioApp
+namespace Syncify
 {
     public sealed partial class GeneralPage : Page
     {

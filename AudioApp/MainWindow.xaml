@@ -1,10 +1,10 @@
 <Window
-    x:Class="AudioApp.MainWindow"
+    x:Class="Syncify.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-    xmlns:local="using:AudioApp"
-    Title="Audio App">
+    xmlns:local="using:Syncify"
+    Title="Syncify">
 
     <Grid x:Name="RootGrid"
           Loaded="RootGrid_Loaded"
@@ -25,7 +25,7 @@
             Grid.Row="0"
             Background="Transparent">
             <TextBlock
-                Text="AudioApp"
+                Text="Syncify"
                 FontSize="12"
                 VerticalAlignment="Center"
                 Margin="12,0,0,0"

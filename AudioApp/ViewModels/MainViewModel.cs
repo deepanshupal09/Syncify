@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using AudioApp.Services;
+using Syncify.Services;
 using System.Collections.ObjectModel;
 using NAudio.CoreAudioApi;
 using System.Linq;
-using static AudioApp.Services.DeviceService;
+using static Syncify.Services.DeviceService;
 using System.Diagnostics;
 
-namespace AudioApp.ViewModels
+namespace Syncify.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {

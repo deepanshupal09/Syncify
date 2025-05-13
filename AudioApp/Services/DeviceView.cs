@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 using Windows.Media.Devices;
 
 
-namespace AudioApp.Services
+namespace Syncify.Services
 {
     public class DeviceView : INotifyPropertyChanged, IDisposable
     {

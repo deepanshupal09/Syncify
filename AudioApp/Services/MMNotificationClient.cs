@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Microsoft.UI.Dispatching;
 using System;
 
-namespace AudioApp.Services
+namespace Syncify.Services
 {
     public class AudioNotificationClient : IMMNotificationClient
     {

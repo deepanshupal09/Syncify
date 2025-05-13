@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using NAudio.CoreAudioApi;
 
-namespace AudioApp.Services
+namespace Syncify.Services
 {
     public class DeviceService
     {
