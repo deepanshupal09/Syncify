@@ -2,7 +2,7 @@
 
 ## Syncify
 
-AudioApp is a lightweight Windows 11 utility that lets you play system audio simultaneously on multiple output devices. By creating a virtual-loopback capture and mirroring the stream to all user-selected endpoints, AudioApp fills the gap in Windows’ native single-device audio routing.
+Syncify is a lightweight Windows 11 utility that lets you play system audio simultaneously on multiple output devices. By creating a virtual-loopback capture and mirroring the stream to all user-selected endpoints, AudioApp fills the gap in Windows’ native single-device audio routing.
 
 ### Key Features
 - **Multi-Device Playback**: Route your system audio to any combination of active outputs (speakers, headphones, HDMI, USB audio).
