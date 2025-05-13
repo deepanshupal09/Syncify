@@ -12,7 +12,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AudioApp.Services;
 using NAudio.CoreAudioApi;
-
+using System.Runtime.InteropServices;
+using System.Drawing;
+using System.Windows.Forms;
+using System.IO;
+using Windows.ApplicationModel;
+using System.Threading;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Application = Microsoft.UI.Xaml.Application;
 
 namespace AudioApp
 {
@@ -23,9 +30,53 @@ namespace AudioApp
         private readonly AudioNotificationClient _notifier;
         private readonly MMDeviceEnumerator _enumerator = new();
         private string _currentNavigationStyle = "Left"; // Default
+        private NotifyIcon _notifyIcon;
+        private bool _minimizeToTray = true; // Default behavior
+        private bool _closeRequested = false;
+        private WindowId _windowId;
+        private AppWindow _appWindow;
+        private static Mutex _singleInstanceMutex;
+        
+        // Handle the window closing event
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        
+        [DllImport("user32.dll")]
+        private static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+        
+        [DllImport("user32.dll")]
+        private static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        
+        private const int GWL_STYLE = -16;
+        private const int WS_MINIMIZEBOX = 0x20000;
+        private const int SW_MINIMIZE = 6;
+        
+        public static bool IsFirstInstance()
+        {
+            const string appName = "AudioApp_SingleInstance";
+            bool createdNew;
+            
+            _singleInstanceMutex = new Mutex(true, appName, out createdNew);
+            return createdNew;
+        }
         
         public MainWindow()
         {
+            // Check if this is the first instance
+            if (!IsFirstInstance())
+            {
+                // Show a message and exit
+                new ContentDialog
+                {
+                    Title = "Already Running",
+                    Content = "AudioApp is already running. Please check your system tray.",
+                    PrimaryButtonText = "OK"
+                }.ShowAsync();
+                
+                Application.Current.Exit();
+                return;
+            }
+            
             this.InitializeComponent();
 
             // 1) Apply Mica
@@ -34,15 +85,19 @@ namespace AudioApp
             // 2) Extend Mica under the title bar buttons
             IntPtr hWnd = WindowNative.GetWindowHandle(this);
             var winId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            var appWindow = AppWindow.GetFromWindowId(winId);
+            _windowId = winId;
+            _appWindow = AppWindow.GetFromWindowId(winId);
 
-            appWindow.Resize(new SizeInt32(1024, 768));
+            _appWindow.Resize(new SizeInt32(1024, 768));
 
-            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
-            appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            appWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
-            appWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
-            appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            _appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            _appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+            _appWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
+            _appWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
+            _appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            
+            // Handle window closing event
+            _appWindow.Closing += AppWindow_Closing;
 
             // 3) Create the AudioService and DeviceService
             DeviceService = new DeviceService(DispatcherQueue);
@@ -53,8 +108,132 @@ namespace AudioApp
             // 4) Apply navigation style from settings
             // We need to wait until the control is loaded for this to work properly
             InitializeNavigationView();
+            
+            // 5) Set up system tray icon
+            InitializeSystemTray();
+            
+            // 6) Load settings
+            LoadSettings();
         }
-
+        
+        private void LoadSettings()
+        {
+            var localSettings = ApplicationData.Current.LocalSettings;
+            if (localSettings.Values.TryGetValue("MinimizeToTray", out object minimizeToTray))
+            {
+                if (minimizeToTray is bool value)
+                {
+                    _minimizeToTray = value;
+                    Debug.WriteLine($"Loaded MinimizeToTray setting: {_minimizeToTray}");
+                }
+            }
+            else
+            {
+                // Default is true if setting doesn't exist
+                localSettings.Values["MinimizeToTray"] = _minimizeToTray;
+                Debug.WriteLine($"Setting default MinimizeToTray: {_minimizeToTray}");
+            }
+        }
+        
+        public void SetMinimizeToTray(bool value)
+        {
+            _minimizeToTray = value;
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["MinimizeToTray"] = value;
+            Debug.WriteLine($"MinimizeToTray set to: {value}");
+        }
+        
+        private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+        {
+            Debug.WriteLine("Window closing event triggered");
+            
+            // If this is a real close request (not minimizing to tray)
+            if (_closeRequested)
+            {
+                // Clean up resources
+                _notifyIcon?.Dispose();
+                return;
+            }
+            
+            // If minimize to tray is enabled, cancel the close and minimize instead
+            if (_minimizeToTray)
+            {
+                args.Cancel = true;
+                MinimizeToTray();
+            }
+            // Otherwise, let the window close normally
+        }
+        
+        private void MinimizeToTray()
+        {
+            Debug.WriteLine("Minimizing to tray");
+            IntPtr hwnd = WindowNative.GetWindowHandle(this);
+            
+            // Hide the window
+            _appWindow.Hide();
+            
+            // Show notification if this is the first time
+            bool notifiedBefore = ApplicationData.Current.LocalSettings.Values.ContainsKey("TrayNotificationShown");
+            if (!notifiedBefore)
+            {
+                _notifyIcon.ShowBalloonTip(3000, "AudioApp", "AudioApp is still running in the system tray", ToolTipIcon.Info);
+                ApplicationData.Current.LocalSettings.Values["TrayNotificationShown"] = true;
+            }
+        }
+        
+        private void InitializeSystemTray()
+        {
+            try
+            {
+                // Create a new instance of NotifyIcon
+                _notifyIcon = new NotifyIcon
+                {
+                    Visible = true,
+                    Text = "AudioApp"
+                };
+                
+                // Set the icon - we'll use a standard system icon for simplicity
+                // In a real app, you would load your application icon
+                _notifyIcon.Icon = SystemIcons.Application;
+                
+                // Create a context menu
+                var contextMenu = new ContextMenuStrip();
+                
+                // Add menu items
+                var showItem = new ToolStripMenuItem("Show AudioApp");
+                showItem.Click += (sender, args) => ShowWindow();
+                contextMenu.Items.Add(showItem);
+                
+                var exitItem = new ToolStripMenuItem("Exit");
+                exitItem.Click += (sender, args) => ExitApplication();
+                contextMenu.Items.Add(exitItem);
+                
+                // Set the context menu
+                _notifyIcon.ContextMenuStrip = contextMenu;
+                
+                // Double-click on the icon should show the app
+                _notifyIcon.DoubleClick += (sender, args) => ShowWindow();
+                
+                Debug.WriteLine("System tray icon initialized");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error initializing system tray: {ex.Message}");
+            }
+        }
+        
+        private void ShowWindow()
+        {
+            Debug.WriteLine("Showing window from tray");
+            _appWindow.Show();
+        }
+        
+        private void ExitApplication()
+        {
+            Debug.WriteLine("Exiting application from tray");
+            _closeRequested = true;
+            Application.Current.Exit();
+        }
 
         private void InitializeNavigationView()
         {

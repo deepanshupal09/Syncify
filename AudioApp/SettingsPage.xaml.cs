@@ -105,6 +105,20 @@ namespace AudioApp
                             break;
                     }
                 }
+                
+                // MINIMIZE TO TRAY CHECKBOX
+                if (localSettings.Values.TryGetValue("MinimizeToTray", out object minimizeToTray) && 
+                    minimizeToTray is bool value)
+                {
+                    MinimizeToTrayCheckBox.IsChecked = value;
+                    Debug.WriteLine($"Minimize to tray checkbox set to: {value}");
+                }
+                else
+                {
+                    // Default is true
+                    MinimizeToTrayCheckBox.IsChecked = true;
+                    Debug.WriteLine("Minimize to tray checkbox defaulted to: true");
+                }
             }
             catch (Exception ex)
             {
@@ -168,6 +182,25 @@ namespace AudioApp
                 {
                     mainWindow.ApplyNavigationStyle(selectedNavStyle);
                 }
+            }
+        }
+        
+        private void MinimizeToTrayCheckBox_CheckedChanged(object sender, RoutedEventArgs e)
+        {
+            // Skip processing during initialization
+            if (_isInitializing) return;
+            
+            bool isChecked = MinimizeToTrayCheckBox.IsChecked ?? true;
+            Debug.WriteLine($"Minimize to tray setting changed to: {isChecked}");
+            
+            // Save the setting
+            var localSettings = ApplicationData.Current.LocalSettings;
+            localSettings.Values["MinimizeToTray"] = isChecked;
+            
+            // Apply to MainWindow
+            if (_window is MainWindow mainWindow)
+            {
+                mainWindow.SetMinimizeToTray(isChecked);
             }
         }
     }

@@ -25,8 +25,9 @@
                 FontWeight="SemiBold" />
 
             <TextBlock
-                Margin="0,8"
-                Text="Select Devices to stream audio to:" />
+                Margin="0,24,0,8"
+                Text="Choose the audio output devices you want to stream to:" />
+
         </StackPanel>
 
         <muxc:ListView

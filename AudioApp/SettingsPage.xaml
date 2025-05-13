@@ -131,8 +131,8 @@
                     Grid.Column="1"
                     x:Name="NavigationStyleSelector"
                     HorizontalAlignment="Right"
-                    Width="240"
                     VerticalAlignment="Center"
+                    Width="240"
                     SelectedIndex="0"
                     SelectionChanged="NavigationStyleSelector_SelectionChanged"
                     PlaceholderText="Select navigation style…">
@@ -149,6 +149,61 @@
                         Top
                     </muxc:ComboBoxItem>
                 </muxc:ComboBox>
+            </Grid>
+        </Border>
+
+        <!-- Minimize to Tray Option -->
+        <Border
+            Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
+            CornerRadius="4"
+            Padding="16"
+            Margin="0,0"
+            HorizontalAlignment="Stretch">
+
+            <Grid
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <FontIcon
+                        Glyph="&#xE7E8;" />
+
+                    <StackPanel
+                        Margin="20,0">
+
+                        <TextBlock
+                            Margin="0,0"
+                            Grid.Column="0"
+                            FontSize="15"
+                            Text="System Tray" />
+                        <TextBlock
+                            Margin="0,4"
+                            Grid.Column="0"
+                            FontSize="12"
+                            Text="Keep app running in system tray when closed" />
+                    </StackPanel>
+                </StackPanel>
+                
+                <CheckBox
+                    x:Name="MinimizeToTrayCheckBox"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    MinWidth="0"
+                    Width="24"
+                    Padding="0"
+                    Checked="MinimizeToTrayCheckBox_CheckedChanged"
+                    Unchecked="MinimizeToTrayCheckBox_CheckedChanged" />
+
             </Grid>
         </Border>
 

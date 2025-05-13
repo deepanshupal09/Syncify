@@ -28,9 +28,12 @@ namespace AudioApp
     /// </summary>
     public partial class App : Application
     {
+        private Window? m_window;
+        
+        public static Window? MainWindow => (Current as App)?.m_window;
+
         /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
+        /// Initializes the singleton application object.
         /// </summary>
         public App()
         {
@@ -53,7 +56,7 @@ namespace AudioApp
         private void InitializeAppSettings()
         {
             // Apply the saved theme and navigation style before activating the window
-            if (m_window.Content is FrameworkElement rootElement)
+            if (m_window?.Content is FrameworkElement rootElement)
             {
                 try
                 {
@@ -116,9 +119,5 @@ namespace AudioApp
                 }
             }
         }
-
-        private Window? m_window;
-        
-        public static Window? MainWindow => (Current as App)?.m_window;
     }
 }
