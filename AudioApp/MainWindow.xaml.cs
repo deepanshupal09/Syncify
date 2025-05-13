@@ -1,17 +1,17 @@
 using System;
+using Microsoft.UI;
+using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;          // <-- for NavigationView, Frame, NavigationViewItem
+using Microsoft.UI.Windowing;
+using WinRT.Interop;
+using Microsoft.UI.Xaml.Media;
+using Windows.Graphics;using Windows.Storage;  // <-- for LocalSettings
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AudioApp.Services;
-using Microsoft.UI;
-using Microsoft.UI.Composition.SystemBackdrops;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using NAudio.CoreAudioApi;
-using WinRT.Interop;
-using Microsoft.UI.Windowing;
-using Windows.Graphics;
 
 
 namespace AudioApp
@@ -22,123 +22,145 @@ namespace AudioApp
         public AudioService AudioService { get; }
         private readonly AudioNotificationClient _notifier;
         private readonly MMDeviceEnumerator _enumerator = new();
-
+        private string _currentNavigationStyle = "Left"; // Default
+        
         public MainWindow()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
-            SystemBackdrop = new MicaBackdrop()
-            { Kind = MicaKind.Base };
+            // 1) Apply Mica
+            SystemBackdrop = new MicaBackdrop() { Kind = MicaKind.Base };
 
-            // 2) grab your AppWindow…
+            // 2) Extend Mica under the title bar buttons
             IntPtr hWnd = WindowNative.GetWindowHandle(this);
-            WindowId winId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            AppWindow appWindow = AppWindow.GetFromWindowId(winId);
+            var winId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = AppWindow.GetFromWindowId(winId);
 
-            // 3) extend content under the title bar
-            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             appWindow.Resize(new SizeInt32(1024, 768));
 
-            // 4) make the caption buttons’ backgrounds transparent
+            appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             appWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
             appWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
+            appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
 
-            DeviceService = new DeviceService(this.DispatcherQueue);
+            // 3) Create the AudioService and DeviceService
+            DeviceService = new DeviceService(DispatcherQueue);
             AudioService = new AudioService();
-            _notifier = new AudioNotificationClient(DeviceService, AudioService, this.DispatcherQueue);
-
+            _notifier = new AudioNotificationClient(DeviceService, AudioService, DispatcherQueue);
             _enumerator.RegisterEndpointNotificationCallback(_notifier);
 
-            // DataContext before anything else
-            RootGrid.DataContext = this;
+            // 4) Apply navigation style from settings
+            // We need to wait until the control is loaded for this to work properly
+            InitializeNavigationView();
+        }
+
+
+        private void InitializeNavigationView()
+        {
+            // Apply saved navigation style or default to Left
+            var localSettings = ApplicationData.Current.LocalSettings;
+            
+            if (localSettings.Values.TryGetValue("NavigationStyle", out object savedNavStyle) && savedNavStyle != null)
+            {
+                _currentNavigationStyle = savedNavStyle.ToString();
+                Debug.WriteLine($"MainWindow initializing with navigation style: {_currentNavigationStyle}");
+            }
+            else
+            {
+                // Default to Left if not set
+                _currentNavigationStyle = "Left";
+                localSettings.Values["NavigationStyle"] = _currentNavigationStyle;
+                Debug.WriteLine($"MainWindow setting default navigation style: {_currentNavigationStyle}");
+            }
+            
+            // Force apply the navigation style, regardless of current state
+            ApplyNavigationStyleForced(_currentNavigationStyle);
+        }
+        
+        public void ApplyNavigationStyle(string navigationStyle)
+        {
+            // Only apply if it's different from current
+            if (navigationStyle != _currentNavigationStyle)
+            {
+                Debug.WriteLine($"Changing navigation style from {_currentNavigationStyle} to {navigationStyle}");
+                
+                _currentNavigationStyle = navigationStyle;
+                
+                ApplyNavigationStyleInternal(navigationStyle);
+            }
+            else
+            {
+                Debug.WriteLine($"Navigation style already set to {navigationStyle}, no change needed");
+            }
+        }
+        
+        // Force the application of the style regardless of the current state
+        private void ApplyNavigationStyleForced(string navigationStyle)
+        {
+            Debug.WriteLine($"Forcing navigation style to: {navigationStyle}");
+            _currentNavigationStyle = navigationStyle;
+            ApplyNavigationStyleInternal(navigationStyle);
+        }
+        
+        // Internal implementation of the style application
+        private void ApplyNavigationStyleInternal(string navigationStyle)
+        {
+            if (navigationStyle == "Top")
+            {
+                Debug.WriteLine("Setting navigation view to TOP mode");
+                NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Top;
+            }
+            else // Default to Left
+            {
+                Debug.WriteLine("Setting navigation view to LEFT mode");
+                NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+            }
         }
 
         private async void RootGrid_Loaded(object sender, RoutedEventArgs e)
         {
-            // Prevent double-init if Loaded fires more than once:
-            Debug.WriteLine("RootGrid_Loaded fired");
             RootGrid.Loaded -= RootGrid_Loaded;
-
-            // 1. Start capturing loopback
             AudioService.StartCapture();
-            await Task.Delay(100); // let capture initialize
-
-            // 2. Initialize all pre-selected devices
+            await Task.Delay(100);
             foreach (var dev in DeviceService.RenderDevices.Where(d => d.IsSelected && d.CanSelect))
             {
-                for (int attempt = 0; attempt < 3; attempt++)
+                for (int i = 0; i < 3; i++)
                 {
-                    try
-                    {
-                        AudioService.AddOutputDevice(dev.ID);
+                    try { AudioService.AddOutputDevice(dev.ID); break; }
+                    catch { await Task.Delay(50); }
+                }
+            }
+            NavView.SelectedItem = (NavigationViewItem)NavView.MenuItems[0];
+        }
+
+
+        private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+        {
+            // ignore Settings (if you had any)
+            if (args.IsSettingsSelected)
+            {
+                // Show SettingsPage
+                ContentFrame.Navigate(typeof(SettingsPage));
+                return;
+            }
+
+            if (args.SelectedItem is NavigationViewItem item)
+            {
+                switch (item.Tag as string)
+                {
+                    case "general":
+                        // Pass services as a parameter
+                        ContentFrame.Navigate(
+                            typeof(GeneralPage),
+                            new { DeviceService = this.DeviceService, AudioService = this.AudioService }
+                        );
                         break;
-                    }
-                    catch
-                    {
-                        await Task.Delay(50);
-                    }
+                    case "about":
+                        ContentFrame.Navigate(typeof(AboutPage));
+                        break;
                 }
             }
         }
-
-
-        private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            // 1) Start capturing loopback
-            AudioService.StartCapture();
-            await Task.Delay(100); // let capture initialize
-
-            // 2) Initialize all pre-selected devices
-            foreach (var dev in DeviceService.RenderDevices.Where(d => d.IsSelected && d.CanSelect))
-            {
-                for (int attempt = 0; attempt < 3; attempt++)
-                {
-                    try
-                    {
-                        AudioService.AddOutputDevice(dev.ID);
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine($"Init attempt {attempt + 1} for {dev.FriendlyName} failed: {ex.Message}");
-                        await Task.Delay(50);
-                    }
-                }
-            }
-        }
-
-        private void Window_Closed(object sender, WindowEventArgs args)
-        {
-            // Clean up audio
-            AudioService.StopCapture();
-
-            // Unregister notifications & dispose enumerator
-            _enumerator.UnregisterEndpointNotificationCallback(_notifier);
-            _enumerator.Dispose();
-        }
-
-        private void Device_Checked(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox { Tag: string id } && AudioService.DeviceExists(id))
-            {
-
-            Debug.WriteLine($"Device_Checked: {id}");
-                AudioService.AddOutputDevice(id);
-            }
-        }
-
-        private void Device_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (sender is CheckBox { Tag: string id })
-                AudioService.RemoveOutputDevice(id);
-        }
-
-        //private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        //{
-        //    if (sender is Slider { Tag: string id })
-        //        AudioService.SetDeviceVolume(id, (float)(e.NewValue / 100.0));
-        //}
     }
 }

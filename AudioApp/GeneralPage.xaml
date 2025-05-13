@@ -1,0 +1,152 @@
+<Page
+    x:Class="AudioApp.GeneralPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    xmlns:services="using:AudioApp.Services">
+
+
+    <Grid
+        Padding="36 10 16 30"
+        RowSpacing="16">
+
+        <Grid.RowDefinitions>
+            <RowDefinition
+                Height="Auto" />
+            <RowDefinition
+                Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel
+            Grid.Row="0">
+            <TextBlock
+                Text="General"
+                FontSize="30"
+                FontWeight="SemiBold" />
+
+            <TextBlock
+                Margin="0,8"
+                Text="Select Devices to stream audio to:" />
+        </StackPanel>
+
+        <muxc:ListView
+            Grid.Row="1"
+            ItemsSource="{Binding RenderDevices}"
+            SelectionMode="None"
+            Background="Transparent"
+            HorizontalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch">
+
+            <!-- remove hover/press visuals as before -->
+            <muxc:ListView.Resources>
+                <SolidColorBrush
+                    x:Key="ListViewItemBackgroundPointerOver"
+                    Color="Transparent" />
+                <SolidColorBrush
+                    x:Key="ListViewItemBackgroundPressed"
+                    Color="Transparent" />
+                <SolidColorBrush
+                    x:Key="ListViewItemBackgroundSelected"
+                    Color="Transparent" />
+                <SolidColorBrush
+                    x:Key="ListViewItemBackgroundSelectedPointerOver"
+                    Color="Transparent" />
+                <SolidColorBrush
+                    x:Key="ListViewItemBackgroundPressedSelected"
+                    Color="Transparent" />
+            </muxc:ListView.Resources>
+
+            <muxc:ListView.ItemContainerStyle>
+                <Style
+                    TargetType="muxc:ListViewItem">
+                    <Setter
+                        Property="HorizontalContentAlignment"
+                        Value="Stretch" />
+                    <Setter
+                        Property="Margin"
+                        Value="0" />
+                    <Setter
+                        Property="Padding"
+                        Value="0" />
+                </Style>
+            </muxc:ListView.ItemContainerStyle>
+
+            <muxc:ListView.ItemTemplate>
+                <DataTemplate
+                    x:DataType="services:DeviceView">
+                    <!-- same item card you already built: -->
+                    <Border
+                        Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
+                        CornerRadius="4"
+                        Padding="12"
+                        Margin="0,4"
+                        HorizontalAlignment="Stretch">
+                        <Grid
+                            RowDefinitions="Auto,Auto"
+                            ColumnDefinitions="Auto,Auto, *,Auto"
+                            ColumnSpacing="12">
+
+                            <CheckBox
+                                Grid.Row="0"
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                MinWidth="0"
+                                Width="24"
+                                Padding="0"
+                                Tag="{Binding ID}"
+                                IsEnabled="{Binding CanSelect}"
+                                IsChecked="{Binding IsSelected,Mode=TwoWay}"
+                                Checked="Device_Checked"
+                                Unchecked="Device_Unchecked" />
+
+                            <Image
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                Source="{Binding Icon}"
+                                Width="20"
+                                Height="20"
+                                VerticalAlignment="Center"
+                                Stretch="Uniform" />
+
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Text="{x:Bind FriendlyName}"
+                                FontSize="14"
+                                Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+
+                            <StackPanel
+                                Grid.Row="0"
+                                Grid.Column="3"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Spacing="12">
+                                <FontIcon
+                                    Tapped="VolumeIcon_Tapped"
+                                    VerticalAlignment="Center"
+                                    FontSize="16"
+                                    Glyph="{x:Bind VolumeIcon, Mode=TwoWay}"
+                                    FontFamily="Segoe MDL2 Assets" />
+                                <TextBlock
+                                    VerticalAlignment="Center"
+                                    Text="{x:Bind VolumeRounded, Mode=TwoWay}"
+                                    MinWidth="22"
+                                    FontSize="14"
+                                    Foreground="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+                                <Slider
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Minimum="0"
+                                    Maximum="100"
+                                    Width="200"
+                                    Value="{x:Bind Volume,Mode=TwoWay}"
+                                    Foreground="{ThemeResource SystemControlHighlightAccentBrush}" />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </muxc:ListView.ItemTemplate>
+        </muxc:ListView>
+    </Grid>
+</Page>

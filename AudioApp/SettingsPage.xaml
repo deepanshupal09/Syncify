@@ -1,0 +1,156 @@
+<Page
+    x:Class="AudioApp.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Background="Transparent">
+
+    <StackPanel
+        Padding="36 10 10 10"
+        Spacing="8">
+
+        <TextBlock
+            Grid.Row="0"
+            Text="Settings"
+            FontSize="30"
+            FontWeight="SemiBold" />
+
+
+        <Border
+            Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
+            CornerRadius="4"
+            Padding="16"
+            Margin="0,8,0,0"
+            HorizontalAlignment="Stretch">
+
+            <Grid
+                VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <FontIcon
+                        Glyph="&#xE790;" />
+
+                    <StackPanel
+                        Margin="20,0">
+
+                        <TextBlock
+                            Margin="0,0"
+                            Grid.Column="0"
+                            FontSize="15"
+                            Text="App Theme" />
+                        <TextBlock
+                            Margin="0,4"
+                            Grid.Column="0"
+                            FontSize="12"
+                            Text="Select which app theme to display" />
+                    </StackPanel>
+                </StackPanel>
+
+                <muxc:ComboBox
+                    Grid.Column="1"
+                    x:Name="ThemeSelector"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="240"
+                    SelectedIndex="0"
+                    SelectionChanged="ThemeSelector_SelectionChanged"
+                    PlaceholderText="Select theme…">
+
+                    <!-- System default -->
+                    <muxc:ComboBoxItem
+                        Tag="Default">
+                        Use system setting
+                    </muxc:ComboBoxItem>
+
+                    <!-- Light -->
+                    <muxc:ComboBoxItem
+                        Tag="Light">
+                        Light
+                    </muxc:ComboBoxItem>
+
+                    <!-- Dark -->
+                    <muxc:ComboBoxItem
+                        Tag="Dark">
+                        Dark
+                    </muxc:ComboBoxItem>
+                </muxc:ComboBox>
+            </Grid>
+        </Border>
+
+        <!-- Navigation Style Option -->
+        <Border
+            Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
+            CornerRadius="4"
+            Padding="16"
+            Margin="0,0"
+            HorizontalAlignment="Stretch">
+
+            <Grid
+                VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <FontIcon
+                        Glyph="&#xE90C;" />
+
+                    <StackPanel
+                        Margin="20,0">
+
+                        <TextBlock
+                            Margin="0,0"
+                            Grid.Column="0"
+                            FontSize="15"
+                            Text="Navigation Style" />
+                        <TextBlock
+                            Margin="0,4"
+                            Grid.Column="0"
+                            FontSize="12"
+                            Text="Select top or left navigation style" />
+                    </StackPanel>
+                </StackPanel>
+
+                <muxc:ComboBox
+                    Grid.Column="1"
+                    x:Name="NavigationStyleSelector"
+                    HorizontalAlignment="Right"
+                    Width="240"
+                    VerticalAlignment="Center"
+                    SelectedIndex="0"
+                    SelectionChanged="NavigationStyleSelector_SelectionChanged"
+                    PlaceholderText="Select navigation style…">
+
+                    <!-- Left -->
+                    <muxc:ComboBoxItem
+                        Tag="Left">
+                        Left
+                    </muxc:ComboBoxItem>
+
+                    <!-- Top -->
+                    <muxc:ComboBoxItem
+                        Tag="Top">
+                        Top
+                    </muxc:ComboBoxItem>
+                </muxc:ComboBox>
+            </Grid>
+        </Border>
+
+    </StackPanel>
+</Page>
