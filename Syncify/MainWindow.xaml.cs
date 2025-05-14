@@ -35,7 +35,6 @@ namespace Syncify
         private bool _closeRequested = false;
         private WindowId _windowId;
         private AppWindow _appWindow;
-        private static Mutex _singleInstanceMutex;
         
         // Handle the window closing event
         [DllImport("user32.dll")]
@@ -51,32 +50,8 @@ namespace Syncify
         private const int WS_MINIMIZEBOX = 0x20000;
         private const int SW_MINIMIZE = 6;
         
-        public static bool IsFirstInstance()
-        {
-            const string appName = "Syncify_SingleInstance";
-            bool createdNew;
-            
-            _singleInstanceMutex = new Mutex(true, appName, out createdNew);
-            return createdNew;
-        }
-        
         public MainWindow()
         {
-            // Check if this is the first instance
-            if (!IsFirstInstance())
-            {
-                // Show a message and exit
-                new ContentDialog
-                {
-                    Title = "Already Running",
-                    Content = "Syncify is already running. Please check your system tray.",
-                    PrimaryButtonText = "OK"
-                }.ShowAsync();
-                
-                Application.Current.Exit();
-                return;
-            }
-            
             this.InitializeComponent();
 
             // 1) Apply Mica
@@ -192,9 +167,8 @@ namespace Syncify
                     Text = "Syncify"
                 };
                 
-                // Set the icon - we'll use a standard system icon for simplicity
-                // In a real app, you would load your application icon
-                _notifyIcon.Icon = SystemIcons.Application;
+                // Load the app icon
+                _notifyIcon.Icon = LoadIconFromAssets();
                 
                 // Create a context menu
                 var contextMenu = new ContextMenuStrip();
@@ -219,6 +193,33 @@ namespace Syncify
             catch (Exception ex)
             {
                 Debug.WriteLine($"Error initializing system tray: {ex.Message}");
+            }
+        }
+        
+        private Icon LoadIconFromAssets()
+        {
+            try
+            {
+                // Use the specific .ico file directly
+                string iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Square44x44Logo.altform-lightunplated_targetsize-32.ico");
+                
+                if (File.Exists(iconPath))
+                {
+                    // Load the .ico file directly
+                    return new Icon(iconPath);
+                }
+                else
+                {
+                    Debug.WriteLine($"Icon file not found at path: {iconPath}");
+                    
+                    // Fallback to system icon if the file doesn't exist
+                    return SystemIcons.Application;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error loading icon: {ex.Message}");
+                return SystemIcons.Application;
             }
         }
         

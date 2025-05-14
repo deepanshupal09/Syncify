@@ -9,8 +9,8 @@
 
   <Identity
     Name="6980b51b-936a-4fc3-945e-7bb41c921db0"
-    Publisher="CN=Deepanshu Pal"
-    Version="1.0.0.0" />
+    Publisher="CN=Syncify"
+    Version="0.0.1.0" />
 
   <mp:PhoneIdentity PhoneProductId="6980b51b-936a-4fc3-945e-7bb41c921db0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
