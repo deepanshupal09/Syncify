@@ -1,9 +1,9 @@
 {
   "profiles": {
-    "AudioApp (Package)": {
+    "Syncify (Package)": {
       "commandName": "MsixPackage"
     },
-    "AudioApp (Unpackaged)": {
+    "Syncify (Unpackaged)": {
       "commandName": "Project"
     }
   }

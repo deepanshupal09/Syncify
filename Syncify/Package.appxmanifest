@@ -15,7 +15,7 @@
   <mp:PhoneIdentity PhoneProductId="6980b51b-936a-4fc3-945e-7bb41c921db0" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>AudioApp</DisplayName>
+    <DisplayName>Syncify</DisplayName>
     <PublisherDisplayName>Deepanshu Pal</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
@@ -35,7 +35,7 @@
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
         DisplayName="Syncify"
-        Description="AudioApp"
+        Description="Syncify is a lightweight audio routing utility that allows you to stream sound to multiple output devices simultaneously with per-device volume controls. Built with simplicity and performance in mind, it's ideal for both everyday users and audio enthusiasts."
         BackgroundColor="transparent"
         Square150x150Logo="Assets\Square150x150Logo.png"
         Square44x44Logo="Assets\Square44x44Logo.png">
