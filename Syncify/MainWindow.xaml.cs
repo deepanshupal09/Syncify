@@ -223,10 +223,41 @@ namespace Syncify
             }
         }
         
-        private void ShowWindow()
+        public void ShowWindow()
         {
             Debug.WriteLine("Showing window from tray");
+            
+            // First make the AppWindow visible
             _appWindow.Show();
+            
+            // Get the window handle
+            IntPtr hwnd = WindowNative.GetWindowHandle(this);
+            
+            // Try multiple ways to bring window to foreground
+            User32.SetForegroundWindow(hwnd);
+            
+            // Windows 10/11 API to activate the window
+            User32.ShowWindow(hwnd, User32.SW_RESTORE);
+            User32.ShowWindow(hwnd, User32.SW_SHOW);
+            
+            // Set focus to the window
+            this.Activate();
+            
+            Debug.WriteLine("Window show and activation complete");
+        }
+        
+        // Import SetForegroundWindow to bring window to foreground
+        private static class User32
+        {
+            [DllImport("user32.dll")]
+            public static extern bool SetForegroundWindow(IntPtr hWnd);
+            
+            [DllImport("user32.dll")]
+            public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+            
+            public const int SW_RESTORE = 9;
+            public const int SW_SHOW = 5;
+            public const int SW_SHOWNA = 8;
         }
         
         private void ExitApplication()

@@ -1,19 +1,27 @@
 using System;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+
+using System.Threading;
 using Microsoft.UI.Dispatching;
 using Microsoft.Windows.AppLifecycle;
 using Windows.ApplicationModel.Activation;
+using Windows.Storage;
+using System.Runtime.InteropServices;
+using Syncify;
+using System.Diagnostics;
 
-namespace Syncify
+namespace DrumPad
 {
     class Program
     {
         [STAThread]
-        static async Task<int> Main(string[] args)
+        static void Main(string[] args)
         {
             WinRT.ComWrappersSupport.InitializeComWrappers();
-            bool isRedirect = await DecideRedirection();
+            bool isRedirect = DecideRedirection();
             if (!isRedirect)
             {
                 Microsoft.UI.Xaml.Application.Start((p) =>
@@ -24,33 +32,112 @@ namespace Syncify
                     new App();
                 });
             }
-            return 0;
         }
 
-        private static async Task<bool> DecideRedirection()
+        private static bool DecideRedirection()
         {
             bool isRedirect = false;
+
             AppActivationArguments args = AppInstance.GetCurrent().GetActivatedEventArgs();
             ExtendedActivationKind kind = args.Kind;
-            AppInstance keyInstance = AppInstance.FindOrRegisterForKey("Syncify_SingleInstance");
-            
-            if (keyInstance.IsCurrent) 
+
+            try
             {
-                keyInstance.Activated += OnActivated;
+                AppInstance keyInstance = AppInstance.FindOrRegisterForKey("randomKey");
+
+                if (keyInstance.IsCurrent)
+                {
+                    keyInstance.Activated += OnActivated;
+                }
+                else
+                {
+                    isRedirect = true;
+                    RedirectActivationTo(args, keyInstance);
+                }
             }
-            else 
+
+            catch (Exception ex)
             {
-                isRedirect = true;
-                await keyInstance.RedirectActivationToAsync(args);
+
             }
+
             return isRedirect;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern IntPtr CreateEvent(
+    IntPtr lpEventAttributes, bool bManualReset,
+    bool bInitialState, string lpName);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetEvent(IntPtr hEvent);
+
+        [DllImport("ole32.dll")]
+        private static extern uint CoWaitForMultipleObjects(
+            uint dwFlags, uint dwMilliseconds, ulong nHandles,
+            IntPtr[] pHandles, out uint dwIndex);
+
+        private static IntPtr redirectEventHandle = IntPtr.Zero;
+
+        // Do the redirection on another thread, and use a non-blocking
+        // wait method to wait for the redirection to complete.
+        public static void RedirectActivationTo(
+            AppActivationArguments args, AppInstance keyInstance)
+        {
+            redirectEventHandle = CreateEvent(IntPtr.Zero, true, false, null);
+            Task.Run(() =>
+            {
+                keyInstance.RedirectActivationToAsync(args).AsTask().Wait();
+                SetEvent(redirectEventHandle);
+            });
+            uint CWMO_DEFAULT = 0;
+            uint INFINITE = 0xFFFFFFFF;
+            _ = CoWaitForMultipleObjects(
+               CWMO_DEFAULT, INFINITE, 1,
+               new IntPtr[] { redirectEventHandle }, out uint handleIndex);
         }
 
         private static void OnActivated(object sender, AppActivationArguments args)
         {
-            // This method will be called when the app is activated by another instance
-            // We can add code here to handle specific activation types if needed
             ExtendedActivationKind kind = args.Kind;
+            Debug.WriteLine($"OnActivated: {kind}");
+            
+            // Use the UI dispatcher to show and activate the window
+            try
+            {
+                Debug.WriteLine("Trying to access UI dispatcher");
+                
+                // Use the stored UI thread's dispatcher instead of the current thread's
+                var uiDispatcher = Syncify.App.UIDispatcher;
+                
+                if (uiDispatcher != null)
+                {
+                    Debug.WriteLine("UI dispatcher found, enqueueing action");
+                    
+                    uiDispatcher.TryEnqueue(() =>
+                    {
+                        Debug.WriteLine("Running on UI thread");
+                        if (App.MainWindow is MainWindow mainWindow)
+                        {
+                            Debug.WriteLine("Found main window, showing it");
+                            mainWindow.ShowWindow();
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Main window not found or not a MainWindow");
+                        }
+                    });
+                }
+                else
+                {
+                    Debug.WriteLine("UI dispatcher is null");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error opening instance {ex.Message}");
+                // Handle any exceptions
+            }
         }
     }
-} 
+}

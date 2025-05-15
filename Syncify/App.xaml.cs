@@ -31,6 +31,9 @@ namespace Syncify
         private Window? m_window;
         
         public static Window? MainWindow => (Current as App)?.m_window;
+        
+        // Add a static dispatcher that can be accessed from any thread
+        public static Microsoft.UI.Dispatching.DispatcherQueue? UIDispatcher { get; private set; }
 
         /// <summary>
         /// Initializes the singleton application object.
@@ -46,6 +49,9 @@ namespace Syncify
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            // Store a reference to the UI thread's dispatcher
+            UIDispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+            
             m_window = new MainWindow();
             
             InitializeAppSettings();
