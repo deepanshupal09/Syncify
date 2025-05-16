@@ -1,0 +1,22 @@
+﻿<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+  <Application>
+    <!-- NAudio COM Interfaces -->
+    <Assembly Name="NAudio.CoreAudioApi">
+      <Type Name="NAudio.CoreAudioApi.Interfaces.IMMNotificationClient" Dynamic="Required All" />
+      <Type Name="NAudio.CoreAudioApi.MMDeviceEnumerator" Dynamic="Required All" />
+      <Type Name="NAudio.CoreAudioApi.AudioSessionManager" Dynamic="Required All" />
+    </Assembly>
+
+    <!-- Windows App SDK COM Dependencies -->
+    <Assembly Name="Microsoft.WindowsAppSDK">
+      <Type Name="Microsoft.Windows.ApplicationModel.DynamicDependency.*" Dynamic="Required All" />
+    </Assembly>
+
+    <!-- System COM Essentials -->
+    <Assembly Name="System.Private.CoreLib">
+      <Type Name="System.Runtime.InteropServices.ComImportAttribute" />
+      <Type Name="System.Runtime.InteropServices.GuidAttribute" />
+      <Type Name="System.Runtime.InteropServices.HandleRef" />
+    </Assembly>
+  </Application>
+</Directives>

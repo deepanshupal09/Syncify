@@ -1,9 +1,6 @@
-// Services/AudioNotificationClient.cs
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
-using System.Diagnostics;
 using Microsoft.UI.Dispatching;
-using System;
 
 namespace Syncify.Services
 {
@@ -12,7 +9,6 @@ namespace Syncify.Services
         private readonly DeviceService _deviceService;
         private readonly AudioService _audioService;
         private readonly DispatcherQueue _dispatcher;
-
 
         public AudioNotificationClient(
             DeviceService deviceService,
@@ -24,6 +20,7 @@ namespace Syncify.Services
             _dispatcher = dispatcher;
         }
 
+        // Explicitly implement all interface methods
         public void OnDeviceStateChanged(string deviceId, DeviceState newState)
             => _deviceService.RefreshDevices();
 
@@ -39,7 +36,6 @@ namespace Syncify.Services
             {
                 _dispatcher.TryEnqueue(() =>
                 {
-                    // Clear any selection of the new default device
                     foreach (var device in _deviceService.RenderDevices)
                     {
                         if (device.ID == defaultDeviceId && device.IsSelected)
@@ -47,7 +43,6 @@ namespace Syncify.Services
                             device.IsSelected = false;
                         }
                     }
-
                     _deviceService.RefreshDevices();
                     _audioService.RestartOnDefaultChange();
                 });
@@ -56,7 +51,7 @@ namespace Syncify.Services
 
         public void OnPropertyValueChanged(string pwstrDeviceId, PropertyKey key)
         {
-            // rarely needed; ignore or refresh if you care about volume changes
+            // Optional: Handle property changes
         }
     }
 }
