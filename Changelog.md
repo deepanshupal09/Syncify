@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.0.1.4] - Unreleased
+
+### Changed
+- Made self contained app and fixed minor issues
+
 ## [0.0.1.3] - Unreleased
 
 ### Added
