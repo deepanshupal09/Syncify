@@ -24,7 +24,7 @@
                     Text="Version: "
                     FontSize="16" />
                 <TextBlock
-                    Text="0.0.1.3"
+                    Text="0.0.1.4"
                     Margin="6,0"
                     FontSize="16" />
             </StackPanel>
@@ -155,6 +155,28 @@
                         HorizontalAlignment="Left"
                         Padding="6,4,0,4"
                         Spacing="6">
+                        <TextBlock
+                            FontWeight="SemiBold"
+                            HorizontalAlignment="Left"
+                            Text="v0.0.1.4 (unreleased)"
+                            FontSize="14" />
+                        <TextBlock
+                            FontWeight="Medium"
+                            Text="Changed:"
+                            FontSize="13"
+                            Margin="6,0,0,0" />
+                        <StackPanel
+                            HorizontalAlignment="Left"
+                            Orientation="Horizontal"
+                            Margin="12,0,0,0">
+                            <FontIcon
+                                Glyph="&#xE9AE;"
+                                FontSize="16" />
+                            <TextBlock
+                                FontSize="14"
+                                TextWrapping="Wrap"
+                                Text="Made self contained app and fixed minor issues." />
+                        </StackPanel>
                         <TextBlock
                             FontWeight="SemiBold"
                             HorizontalAlignment="Left"
