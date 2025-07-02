@@ -49,90 +49,76 @@ namespace Syncify
 
         private void LoadChangelog()
         {
-            ChangelogEntries.Add(new ChangelogEntry
+            ChangelogEntries = new ObservableCollection<ChangelogEntry>
             {
-                Version = "v0.1.0.0",
-                Status = "unreleased",
-                Added = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "System tray flyout for device control and volume adjustment" },
-                    new() { Text = "App logo integration in headers" }
+                new() {
+                    Version = "v0.1.0.0",
+                    Status = "unreleased",
+                    Added = new() {
+                        new() { Text = "System tray flyout for device control and volume adjustment" },
+                        new() { Text = "App logo integration in headers" }
+                    },
+                    Changed = new() {
+                        new() { Text = "Minor UI fixes and improvements" }
+                    }
                 },
-                Changed = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Minor UI fixes and improvements" }
-                }
-            });
-
-            ChangelogEntries.Add(new ChangelogEntry
-            {
-                Version = "v0.0.1.4",
-                Status = "unreleased",
-                Changed = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Made self contained app and fixed minor issues" }
-                }
-            });
-
-            ChangelogEntries.Add(new ChangelogEntry
-            {
-                Version = "v0.0.1.3",
-                Status = "unreleased",
-                Added = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Close to system tray option in settings" },
-                    new() { Text = "Close to tray functionality" },
-                    new() { Text = "Single instance application mode" }
+                new() {
+                    Version = "v0.0.1.4",
+                    Status = "unreleased",
+                    Changed = new() {
+                        new() { Text = "Made self contained app and fixed minor issues" }
+                    }
                 },
-                Changed = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Updated About page" }
-                }
-            });
-
-            ChangelogEntries.Add(new ChangelogEntry
-            {
-                Version = "v0.0.1.2",
-                Status = "unreleased",
-                Added = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Side navigation bar" },
-                    new() { Text = "Support for themes and navigation styles" },
-                    new() { Text = "Icons for audio devices" }
+                new() {
+                    Version = "v0.0.1.3",
+                    Status = "unreleased",
+                    Added = new() {
+                        new() { Text = "Close to system tray option in settings" },
+                        new() { Text = "Close to tray functionality" },
+                        new() { Text = "Single instance application mode" }
+                    },
+                    Changed = new() {
+                        new() { Text = "Updated About page" }
+                    }
                 },
-                Changed = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Redesigned UI" }
+                new() {
+                    Version = "v0.0.1.2",
+                    Status = "unreleased",
+                    Added = new() {
+                        new() { Text = "Side navigation bar" },
+                        new() { Text = "Support for themes and navigation styles" },
+                        new() { Text = "Icons for audio devices" }
+                    },
+                    Changed = new() {
+                        new() { Text = "Redesigned UI" }
+                    }
+                },
+                new() {
+                    Version = "v0.0.1.1",
+                    Status = "unreleased",
+                    Added = new() {
+                        new() { Text = "Synchronized system volume changes to device sliders" }
+                    }
+                },
+                new() {
+                    Version = "v0.0.1.0",
+                    Status = "unreleased",
+                    Added = new() {
+                        new() { Text = "Graceful handling when default audio device changes (app now restarts capture and reattaches outputs without exceptions)" },
+                        new() { Text = "Individual device volume sliders for each selected output device" },
+                        new() { Text = "Circular buffer for audio data to prevent buffer-full conditions and ensure smooth playback across multiple devices" }
+                    }
                 }
-            });
-
-            ChangelogEntries.Add(new ChangelogEntry
-            {
-                Version = "v0.0.1.1",
-                Status = "unreleased",
-                Added = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Synchronized system volume changes to device sliders" }
-                }
-            });
-
-            ChangelogEntries.Add(new ChangelogEntry
-            {
-                Version = "v0.0.1.0",
-                Status = "unreleased",
-                Added = new ObservableCollection<ChangelogItem>
-                {
-                    new() { Text = "Graceful handling when default audio device changes (app now restarts capture and reattaches outputs without exceptions)" },
-                    new() { Text = "Individual device volume sliders for each selected output device" },
-                    new() { Text = "Circular buffer for audio data to prevent buffer-full conditions and ensure smooth playback across multiple devices" }
-                }
-            });
+            };
         }
 
         private void LoadKnownIssues()
         {
-            KnownIssues.Add(new ChangelogItem { Text = "Audio latency (~100-150ms) occurs when streaming from wireless to wired devices (recommend wired-to-wireless configuration)." });
-            KnownIssues.Add(new ChangelogItem { Text = "No in-app control for setting the system default output device (must be changed via Windows settings)." });
+            KnownIssues = new ObservableCollection<ChangelogItem>
+            {
+                new() { Text = "Audio latency (~100-150ms) occurs when streaming from wireless to wired devices (recommend wired-to-wireless configuration)." },
+                new() { Text = "No in-app control for setting the system default output device (must be changed via Windows settings)." }
+            };
         }
     }
 }
