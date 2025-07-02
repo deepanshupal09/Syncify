@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.0.0] - Unreleased
+
+### Added
+- System tray flyout for device control and volume adjustment
+- App logo integration in headers
+
+### Changed
+- Minor UI fixes and improvements
+  
 ## [0.0.1.4] - Unreleased
 
 ### Changed
