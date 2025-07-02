@@ -10,6 +10,7 @@ using Syncify.Services;
 using Windows.Graphics;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Dispatching;
 
 namespace Syncify
 {
@@ -58,6 +59,9 @@ namespace Syncify
         {
             // 1) Create WinUI window and set content
             _window = new Window();
+            
+            // Close the fly-out whenever it loses focus (more reliable than a global mouse hook)
+            _window.Activated += OnWindowActivated;
             
             // Apply Mica backdrop like the main application
             _window.SystemBackdrop = new MicaBackdrop() { Kind = MicaKind.Base };
@@ -163,10 +167,20 @@ namespace Syncify
                     int y = Marshal.ReadInt32(lParam, 4);
                     var pt = new POINT { X = x, Y = y };
 
-                    if (!IsPointInWindow(pt))
+                    // Determine the window under the cursor
+                    IntPtr targetHwnd = WindowFromPoint(pt);
+
+                    bool clickedInside = targetHwnd == _hwnd || IsChild(_hwnd, targetHwnd);
+
+                    if (!clickedInside)
                     {
                         Debug.WriteLine("Click outside window detected, closing flyout");
-                        _appWindow.Hide();
+                        // Hide on UI thread for reliability
+                        _window.DispatcherQueue.TryEnqueue(() =>
+                        {
+                            if (_appWindow != null && _appWindow.IsVisible)
+                                _appWindow.Hide();
+                        });
                     }
                 }
             }
@@ -219,6 +233,13 @@ namespace Syncify
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+        [DllImport("user32.dll")]
+        private static extern IntPtr WindowFromPoint(POINT point);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool IsChild(IntPtr hWndParent, IntPtr hWnd);
+
         [StructLayout(LayoutKind.Sequential)]
         private struct POINT
         {
@@ -242,6 +263,20 @@ namespace Syncify
         {
             Debug.WriteLine("Show App requested from flyout");
             ShowAppRequested?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// Hides the fly-out whenever it loses focus (window de-activated).
+        /// This is more reliable than depending solely on the low-level mouse hook, and
+        /// also works for keyboard focus changes, Alt-Tab, etc.
+        /// </summary>
+        private void OnWindowActivated(object sender, WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == WindowActivationState.Deactivated)
+            {
+                // Ensure we run on the UI thread
+                _window.DispatcherQueue.TryEnqueue(() => _appWindow?.Hide());
+            }
         }
     }
 }
