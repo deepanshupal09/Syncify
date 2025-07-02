@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.1.0.0] - Unreleased
+## [0.1.0.0] - Beta
 
 ### Added
 - System tray flyout for device control and volume adjustment

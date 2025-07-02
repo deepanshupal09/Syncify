@@ -53,7 +53,7 @@ namespace Syncify
             {
                 new() {
                     Version = "v0.1.0.0",
-                    Status = "unreleased",
+                    Status = "beta",
                     Added = new() {
                         new() { Text = "System tray flyout for device control and volume adjustment" },
                         new() { Text = "App logo integration in headers" }
