@@ -10,3 +10,11 @@ Syncify is a lightweight Windows 11 utility that lets you play system audio simu
 - **Seamless Default Device Handling**: Automatically adapts when you switch the default audio device.
 - **Robust Buffering**: A circular buffer implementation prevents overflows and dropouts when streaming to multiple sinks.
 - **Clean WinUI3 Interface**: Intuitive, modern UI built with WinUI3 for native look and feel.
+
+### Screenshots
+
+![Screenshot 2025-06-14 183150](https://github.com/user-attachments/assets/6b7c71ca-1c6c-46ac-9e1f-e18a6c2c1b7e)
+
+![Screenshot 2025-06-14 183210](https://github.com/user-attachments/assets/a206068f-da0a-4bcd-9d80-eae6b9d04d4d)
+
+![Screenshot 2025-06-14 183159](https://github.com/user-attachments/assets/b4f597bb-40da-436c-8e1e-70f2e11982bc)
