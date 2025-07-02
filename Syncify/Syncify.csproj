@@ -143,7 +143,7 @@
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
     <AssemblyName>Syncify</AssemblyName>
     <Title>Syncify</Title>
-    <FileVersion>0.0.1.4</FileVersion>
+    <FileVersion>0.1.0.0</FileVersion>
     <Description>Syncify is a lightweight audio routing utility that allows you to stream sound to multiple output devices simultaneously with per-device volume controls. Built with simplicity and performance in mind, it's ideal for both everyday users and audio enthusiasts.</Description>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>

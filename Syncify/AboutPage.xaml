@@ -35,7 +35,7 @@
                     Text="Version: "
                     FontSize="16" />
                 <TextBlock
-                    Text="0.0.1.4"
+                    Text="0.1.0.0"
                     Margin="6,0"
                     FontSize="16" />
             </StackPanel>
