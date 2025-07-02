@@ -10,10 +10,21 @@
             Spacing="12">
 
             <!-- Header -->
-            <TextBlock
-                Text="About Syncify"
-                FontSize="28"
-                FontWeight="SemiBold" />
+            <StackPanel
+                Orientation="Horizontal"
+                VerticalAlignment="Center"
+                Spacing="12">
+                <Image
+                    Source="Assets/Square44x44Logo.altform-lightunplated_targetsize-32.png"
+                    Width="32"
+                    Height="32"
+                    VerticalAlignment="Center" />
+                <TextBlock
+                    Text="About Syncify"
+                    FontSize="28"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center" />
+            </StackPanel>
 
             <!-- Version -->
             <StackPanel

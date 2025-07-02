@@ -16,15 +16,26 @@
                     <SolidColorBrush
                         x:Key="HomePageBackgroundBrush"
                         Color="Transparent" />
+                    <SolidColorBrush
+                        x:Key="MicaDarkBrush"
+                        Color="#F3F3F3" />
                 </ResourceDictionary>
                 <ResourceDictionary
                     x:Key="Dark">
                     <SolidColorBrush
                         x:Key="HomePageBackgroundBrush"
                         Color="Black" />
+                    <SolidColorBrush
+                        x:Key="MicaDarkBrush"
+                        Color="#202020" />
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
             <!-- Other app resources here -->
+
+            <CubicEase
+                x:Key="CubicEaseOut"
+                EasingMode="EaseOut" />
         </ResourceDictionary>
+
     </Application.Resources>
 </Application>
